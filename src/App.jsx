@@ -7,6 +7,7 @@ const CONFIG = {
   formation: "Licence 3 en Réseaux & Télécommunications",
   university: "UCAO-UUC, Cotonou",
   goal: 200000,
+  currentAmount: 0,        // ← MODIFIE CE CHIFFRE pour mettre à jour la cagnotte (ex: 75000)
   currency: "FCFA",
   pcName: "HP EliteBook 840 G5",
   pcPrice: "200 000 FCFA",
@@ -174,6 +175,111 @@ function QuickStat({ number, label }) {
       <div className="font-display text-2xl sm:text-3xl font-bold text-gray-900">{number}</div>
       <div className="text-xs sm:text-sm text-gray-500 mt-1">{label}</div>
     </div>
+  )
+}
+
+function ProgressTracker() {
+  const [ref, isVisible] = useInView(0.3)
+  const percentage = Math.min((CONFIG.currentAmount / CONFIG.goal) * 100, 100)
+  const animatedAmount = useCountUp(CONFIG.currentAmount, 2200, isVisible)
+  const animatedPercentage = useCountUp(Math.round(percentage), 2200, isVisible)
+
+  const formatNumber = (n) => n.toString().replace(/\B(?=(\d{3})(?!\d))/g, ' ')
+
+  return (
+    <section ref={ref} className="relative -mt-6 sm:-mt-10 z-20 pb-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-6 scale-95'}`}>
+          <div className="relative">
+            {/* Glow effect behind card */}
+            <div className="absolute -inset-2 bg-gradient-to-r from-rose-300/30 via-amber-300/20 to-rose-300/30 rounded-[2rem] blur-xl" />
+            
+            <div className="relative bg-white/90 backdrop-blur-2xl rounded-3xl p-6 sm:p-10 shadow-xl border border-white/80">
+              {/* Top row: amounts */}
+              <div className="flex items-end justify-between mb-6">
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-400 uppercase tracking-widest mb-1">Collecté</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-display text-3xl sm:text-5xl font-bold gradient-text">
+                      {formatNumber(animatedAmount)}
+                    </span>
+                    <span className="text-gray-400 font-medium text-sm sm:text-base">{CONFIG.currency}</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs sm:text-sm text-gray-400 uppercase tracking-widest mb-1">Objectif</p>
+                  <span className="font-display text-xl sm:text-2xl font-bold text-gray-900">
+                    {formatNumber(CONFIG.goal)} <span className="text-gray-400 font-medium text-sm">{CONFIG.currency}</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Progress bar */}
+              <div className="relative">
+                {/* Background track */}
+                <div className="h-5 sm:h-6 bg-gray-100 rounded-full overflow-hidden relative">
+                  {/* Animated fill */}
+                  <div 
+                    className="progress-bar-fill h-full relative"
+                    style={{ width: isVisible ? `${Math.max(percentage, 2)}%` : '0%' }}
+                  >
+                    {/* Shine effect on the bar */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/25 to-transparent" />
+                  </div>
+                  {/* Subtle stripes overlay */}
+                  <div className="absolute inset-0 opacity-[0.07]" style={{
+                    backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(0,0,0,0.3) 8px, rgba(0,0,0,0.3) 9px)',
+                  }} />
+                </div>
+
+                {/* Percentage floating pill */}
+                <div 
+                  className="absolute -top-10 transition-all duration-[2200ms] ease-out"
+                  style={{ left: isVisible ? `calc(${Math.max(Math.min(percentage, 95), 5)}% - 28px)` : '5%' }}
+                >
+                  <div className="bg-gray-900 text-white text-xs sm:text-sm font-bold px-3 py-1 rounded-full shadow-lg whitespace-nowrap">
+                    {animatedPercentage}%
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom stats row */}
+              <div className="flex items-center justify-between mt-5">
+                <div className="flex items-center gap-2">
+                  {percentage >= 100 ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs sm:text-sm font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-green-500" />
+                      Objectif atteint ! 🎉
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 text-rose-600 text-xs sm:text-sm font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                      Cagnotte en cours
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs sm:text-sm text-gray-400">
+                  Reste <strong className="text-gray-600">{formatNumber(Math.max(CONFIG.goal - CONFIG.currentAmount, 0))} {CONFIG.currency}</strong>
+                </p>
+              </div>
+
+              {/* Motivational message based on progress */}
+              {percentage > 0 && percentage < 100 && (
+                <div className="mt-5 text-center p-3 rounded-xl bg-gradient-to-r from-rose-50/50 to-amber-50/50 border border-rose-100/50">
+                  <p className="text-sm text-gray-600">
+                    {percentage < 25 && "🌱 Chaque don nous rapproche du but. Partagez pour accélérer !"}
+                    {percentage >= 25 && percentage < 50 && "💪 Bel élan ! On avance bien, continuons ensemble !"}
+                    {percentage >= 50 && percentage < 75 && "🔥 Plus de la moitié ! L'objectif est à portée de main !"}
+                    {percentage >= 75 && "🚀 Presque là ! Encore un petit effort, on y est !"}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -666,6 +772,7 @@ export default function App() {
       <div className="grain-overlay" />
       <Navbar />
       <Hero />
+      <ProgressTracker />
       <StorySection />
       <CVSection />
       <PCSection />
