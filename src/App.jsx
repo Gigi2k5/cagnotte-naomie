@@ -10,7 +10,7 @@ const CONFIG = {
   currency: "FCFA",
   pcName: "HP EliteBook 840 G5",
   pcPrice: "200 000 FCFA",
-  mtnNumber: "0161546128",
+  mtnNumber: "0159006502",
   mtnName: "Azareel MEBOUNOU",
 }
 
