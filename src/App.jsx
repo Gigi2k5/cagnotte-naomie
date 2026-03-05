@@ -7,7 +7,7 @@ const CONFIG = {
   formation: "Licence 3 en Réseaux & Télécommunications",
   university: "UCAO-UUC, Cotonou",
   goal: 200000,
-  currentAmount: 15000,        // ← MODIFIE CE CHIFFRE pour mettre à jour la cagnotte (ex: 75000)
+  currentAmount: 20500,        // ← MODIFIE CE CHIFFRE pour mettre à jour la cagnotte (ex: 75000)
   currency: "FCFA",
   pcName: "HP EliteBook 840 G5",
   pcPrice: "200 000 FCFA",
